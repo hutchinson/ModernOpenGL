@@ -1,4 +1,4 @@
 *-Debug/
 *-Release/
-*.userA
+*.user
 .DS_Store
