@@ -4,7 +4,12 @@ project(glfw_shaders)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-add_executable(${PROJECT_NAME} "main.cpp")
+set(HEADERS Shader.h)
+
+set(SOURCES main.cpp
+            Shader.cpp)
+
+add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
 # Include Thirdparty Libraries
 set(CMAKE_PREFIX_PATH /usr/local)

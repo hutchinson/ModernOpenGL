@@ -8,6 +8,8 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
+#include "Shader.h"
+
 const GLint WIDTH = 800;
 const GLint HEIGHT = 600;
 
