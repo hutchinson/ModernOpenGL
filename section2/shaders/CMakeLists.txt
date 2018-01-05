@@ -9,6 +9,10 @@ set(HEADERS Shader.h)
 set(SOURCES main.cpp
             Shader.cpp)
 
+configure_file(SimpleVShader.glsl SimpleVShader.glsl)
+configure_file(MultiColourFragShader.glsl MultiColourFragShader.glsl)
+configure_file(YellowTriangleFragShader.glsl YellowTriangleFragShader.glsl)
+
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
 # Include Thirdparty Libraries

@@ -13,33 +13,6 @@
 const GLint WIDTH = 800;
 const GLint HEIGHT = 600;
 
-// Setup our vertex shader.
-const GLchar* vertexShaderSource = "#version 330 core\n"
-                                   "layout (location = 0) in vec3 position;\n"
-                                   "layout (location = 1) in vec3 color;\n"
-                                   "out vec4 vertexColor;   // a shader output.\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "gl_Position = vec4(position, 1.0) * vec4(1.0f, -1.0f, 1.0f, 1.0f);\n"
-                                   "vertexColor = vec4(color, 1.0);\n"
-                                    "}\n";
-
-const GLchar* fragmentShaderSource = "#version 330 core\n"
-                                     "out vec4 color;\n"
-                                     "uniform vec4 ourColor;\n"
-                                     "in vec4 vertexColor; // this is linked to the output from above..\n"
-                                     "void main()\n"
-                                     "{\n"
-                                     "color = vertexColor;\n"
-                                     "}\n";
-
-const GLchar* yellowTriangleShaderSource = "#version 330 core\n"
-                                           "out vec4 color;\n"
-                                           "void main()\n"
-                                           "{\n"
-                                           "color = vec4(0.8f, 0.8f, 0.2f, 1.0f);\n"
-                                           "}\n";
-
 int main(int argc, const char** argv)
 {
     glfwInit();
@@ -78,83 +51,8 @@ int main(int argc, const char** argv)
     glViewport(0, 0, screenWidth, screenHeight);
 
     // Setup the shaders
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    // Check for shader errors...
-    GLint success;
-    GLchar errorMessage[512];
-
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        // What happended?
-        glGetShaderInfoLog(vertexShader, 512, NULL, errorMessage);
-        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << errorMessage << std::endl;
-    }
-
-    // Same again for the fragement shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        // What happended?
-        glGetShaderInfoLog(fragmentShader, 512, NULL, errorMessage);
-        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << errorMessage << std::endl;
-    }
-
-    GLuint yellowFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(yellowFragmentShader, 1, &yellowTriangleShaderSource, NULL);
-    glCompileShader(yellowFragmentShader);
-
-    glGetShaderiv(yellowFragmentShader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        // What happended?
-        glGetShaderInfoLog(yellowFragmentShader, 512, NULL, errorMessage);
-        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << errorMessage << std::endl;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    // Link the shaders
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    // Check for linking errors...
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if(!success)
-    {
-        // What happended?
-        glGetProgramInfoLog(shaderProgram, 512, NULL, errorMessage);
-        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << errorMessage << std::endl;
-    }
-
-    // Yellow shader.
-    GLuint yelloShaderProgram = glCreateProgram();
-    glAttachShader(yelloShaderProgram, vertexShader);
-    glAttachShader(yelloShaderProgram, yellowFragmentShader);
-    glLinkProgram(yelloShaderProgram);
-
-    // Check for linking errors...
-    glGetProgramiv(yelloShaderProgram, GL_LINK_STATUS, &success);
-    if(!success)
-    {
-        // What happended?
-        glGetProgramInfoLog(yelloShaderProgram, 512, NULL, errorMessage);
-        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << errorMessage << std::endl;
-    }
-
-    // We can now clean up the compiled fragment and vertex shaders
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    glDeleteShader(yelloShaderProgram);
+    gl::Shader multiColorShader("SimpleVShader.glsl", "MultiColourFragShader.glsl");
+    gl::Shader yellowShader("SimpleVShader.glsl", "YellowTriangleFragShader.glsl");
 
     GLfloat verticies[] = {
         // positions        // colours
@@ -212,8 +110,6 @@ int main(int argc, const char** argv)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shaderProgram);
-
         // Load the configuration stored in the vertex array.
         for(int triangle = 0; triangle < 2; ++triangle)
         {
@@ -222,15 +118,14 @@ int main(int argc, const char** argv)
                 // Setup our uniforms
                 float timeValue = glfwGetTime();
                 float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-                GLint colorUniform = glGetUniformLocation(shaderProgram, "ourColor");
-                glUseProgram(shaderProgram);
+                multiColorShader.use();
 
                 // Push a value to the shader uniform
-                glUniform4f(colorUniform, 0.0f, greenValue, 0.0f, 1.0f);
+                //glUniform4f(colorUniform, 0.0f, greenValue, 0.0f, 1.0f);
             }
             else
             {
-                glUseProgram(yelloShaderProgram);
+                yellowShader.use();
             }
 
             glBindVertexArray(trianglesVAOs[triangle]);

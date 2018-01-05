@@ -26,13 +26,15 @@ public:
     void use();
 
     // Set uniforms for this shader
-    void setBool(const std::string& name, GLboolean value) const;
-    void setInt(const std::string& name, GLint value) const;
-    void setFloat(const std::string& name, GLfloat value) const;
+    void setBool(const std::string& name, GLboolean value);
+    void setInt(const std::string& name, GLint value);
+    void setFloat(const std::string& name, GLfloat value);
 
 private:
     // Read the contents of the file specified by filePath and return it.
     const std::string&& readFile(const char* filePath);
+
+    GLint m_shaderProgram;
 };
 
 }   // namespace gl
