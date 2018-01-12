@@ -17,11 +17,16 @@ configure_file(MultiColourFragShader.glsl MultiColourFragShader.glsl)
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
-# Ensure our texture is copied over.
+# Ensure our textures are copied over.
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/container.jpg
             ${CMAKE_CURRENT_BINARY_DIR}/container.jpg)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/awesomeface.png
+            ${CMAKE_CURRENT_BINARY_DIR}/awesomeface.png)
 
 # Include Thirdparty Libraries
 set(CMAKE_PREFIX_PATH /usr/local)

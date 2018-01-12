@@ -17,7 +17,48 @@ const GLint HEIGHT = 600;
 
 unsigned char* loadTexture(const char* filePath, int* width, int* height, int* numChannel)
 {
+    stbi_set_flip_vertically_on_load(true);
     return stbi_load(filePath, width, height, numChannel, 0);
+}
+
+void configureTexture(const char* filePath, GLuint* textureID)
+{
+    // Load the texture.
+    int width, height, numChannels;
+    unsigned char* data = loadTexture(filePath, &width, &height, &numChannels);
+    if(!data)
+    {
+        std::cerr << "Unable to load texture.";
+        return;
+    }
+
+    glGenTextures(1, textureID);
+
+    // Set it as the target for our subsequent calls.
+    glBindTexture(GL_TEXTURE_2D, *textureID);
+
+    // Set it as the target for our subsequent calls.
+    glBindTexture(GL_TEXTURE_2D, *textureID);
+
+    // Set up texture wrapping and filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Now we're going to transfer that texture data previously loaded to the CPU
+    glTexImage2D(GL_TEXTURE_2D,     // target
+                 0,                 // mip map level
+                 GL_RGB,            // format we'll store the pixels in OpenGL
+                 width, height,     // texture width & height
+                 0,                 // legacy
+                 numChannels == 3 ? GL_RGB : GL_RGBA,            // source image format
+                 GL_UNSIGNED_BYTE,  // data type of the source image.
+                 data);             // pointer to image data.
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Free the image memory in RAM (its now on the GPU)
+    stbi_image_free(data);
 }
 
 int main(int argc, const char** argv)
@@ -56,43 +97,15 @@ int main(int argc, const char** argv)
     // Setup OpenGL viewport
     glViewport(0, 0, screenWidth, screenHeight);
 
-    // Load the texture.
-    int width, height, numChannels;
-    unsigned char* data = loadTexture("container.jpg", &width, &height, &numChannels);
-    if(!data)
-    {
-        std::cerr << "Unable to load texture.";
-        return 1;
-    }
-    // Creating an OpenGL texture resource.
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-
-    // Set it as the target for our subsequent calls.
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    // Set up texture wrapping and filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Now we're going to transfer that texture data previously loaded to the CPU
-    glTexImage2D(GL_TEXTURE_2D,     // target
-                 0,                 // mip map level
-                 GL_RGB,            // format we'll store the pixels in OpenGL
-                 width, height,     // texture width & height
-                 0,                 // legacy
-                 GL_RGB,            // source image format
-                 GL_UNSIGNED_BYTE,  // data type of the source image.
-                 data);             // pointer to image data.
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    // Free the image memory in RAM (its now on the GPU)
-    stbi_image_free(data);
+    GLuint texture1ID, texture2ID;
+    configureTexture("container.jpg", &texture1ID);
+    configureTexture("awesomeface.png", &texture2ID);
 
     // Setup the shaders
     gl::Shader multiColorShader("SimpleVShader.glsl", "MultiColourFragShader.glsl");
+    multiColorShader.use();
+    multiColorShader.setInt("outTexture", 0);
+    multiColorShader.setInt("ourTexture2", 1);
 
     GLfloat verticies[] = {
         // positions          // colours       // texture coordinates
@@ -154,7 +167,11 @@ int main(int argc, const char** argv)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1ID);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2ID);
 
         // Load the configuration stored in the vertex array.
         multiColorShader.use();
