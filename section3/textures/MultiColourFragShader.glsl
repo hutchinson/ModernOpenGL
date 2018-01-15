@@ -11,7 +11,12 @@ uniform sampler2D ourTexture2;
 void main()
 {
     vec2 flippedTexCoords = texCoords;
-    flippedTexCoords.x *= -1.0f;
+    // Flip the image.
+    //flippedTexCoords.x *= -1.0f;
+
+    // Cause wrapping.
+    flippedTexCoords *= 2.0f;
+
     color = mix(texture(ourTexture, texCoords), texture(ourTexture2, flippedTexCoords), 0.2);
     //color = texture(ourTexture2, texCoords) * vec4(vertexColor);
 }
