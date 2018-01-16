@@ -2,6 +2,9 @@
 out vec4 color;
 
 uniform vec4 ourColor;
+
+uniform float mixLevel;
+
 in vec4 vertexColor; // this is linked to the output from above..
 in vec2 texCoords;
 
@@ -15,8 +18,8 @@ void main()
     //flippedTexCoords.x *= -1.0f;
 
     // Cause wrapping.
-    flippedTexCoords *= 2.0f;
+    // flippedTexCoords *= 2.0f;
 
-    color = mix(texture(ourTexture, texCoords), texture(ourTexture2, flippedTexCoords), 0.2);
+    color = mix(texture(ourTexture, texCoords), texture(ourTexture2, flippedTexCoords), mixLevel);
     //color = texture(ourTexture2, texCoords) * vec4(vertexColor);
 }

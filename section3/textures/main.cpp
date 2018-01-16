@@ -14,6 +14,8 @@
 
 const GLint WIDTH = 800;
 const GLint HEIGHT = 600;
+GLfloat mixLevel = 0.2f;
+GLfloat step = 0.1f;
 
 unsigned char* loadTexture(const char* filePath, int* width, int* height, int* numChannel)
 {
@@ -61,6 +63,17 @@ void configureTexture(const char* filePath, GLuint* textureID)
     stbi_image_free(data);
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if(action != GLFW_RELEASE)
+        return;
+
+    if(key == GLFW_KEY_UP)
+        mixLevel += step;
+    else if(key == GLFW_KEY_DOWN)
+        mixLevel -= step;
+}
+
 int main(int argc, const char** argv)
 {
     glfwInit();
@@ -79,6 +92,8 @@ int main(int argc, const char** argv)
         glfwTerminate();
         return -1;
     }
+
+    glfwSetKeyCallback(window, key_callback);
 
     // This returns the actual underlying DPI
     int screenWidth, screenHeight;
@@ -104,6 +119,7 @@ int main(int argc, const char** argv)
     // Setup the shaders
     gl::Shader multiColorShader("SimpleVShader.glsl", "MultiColourFragShader.glsl");
     multiColorShader.use();
+    multiColorShader.setFloat("mixLevel", 0.2f);
     multiColorShader.setInt("outTexture", 0);
     multiColorShader.setInt("ourTexture2", 1);
 
@@ -175,6 +191,7 @@ int main(int argc, const char** argv)
 
         // Load the configuration stored in the vertex array.
         multiColorShader.use();
+        multiColorShader.setFloat("mixLevel", mixLevel);
 
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
