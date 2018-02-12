@@ -79,6 +79,17 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         mixLevel -= step;
 }
 
+void glm_tests()
+{
+    glm::vec4 vec(1.f, 0.0f, 0.0f, 1.0f);
+    glm::mat4 translation;
+
+    translation = glm::translate(translation, glm::vec3(1.0f, 1.0f, 0.0f));
+    vec = translation * vec;
+
+    std::cout << vec.x << "," << vec.y << "," << vec.z << std::endl;
+}
+
 int main(int argc, const char** argv)
 {
     glfwInit();
@@ -179,6 +190,9 @@ int main(int argc, const char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    glm_tests();
+
+
     // Set up the game loop...
     while( !glfwWindowShouldClose(window) )
     {
@@ -197,6 +211,15 @@ int main(int argc, const char** argv)
         // Load the configuration stored in the vertex array.
         multiColorShader.use();
         multiColorShader.setFloat("mixLevel", mixLevel);
+
+        glm::mat4 transform;
+        // Transform orders are in reverse, we rotate around z first then translate.
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        unsigned int transformUniformLocation = glGetUniformLocation(multiColorShader.id(), "transform");
+        //                 locationID, numMatricies, shouldTranspose?, matrixData
+        glUniformMatrix4fv(transformUniformLocation, 1, GL_FALSE, glm::value_ptr(transform));
 
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);

@@ -25,6 +25,8 @@ public:
     // Activate the shader for use.
     void use();
 
+    const GLint id() const { return m_shaderProgram; }
+
     // Set uniforms for this shader
     void setBool(const std::string& name, GLboolean value);
     void setInt(const std::string& name, GLint value);
