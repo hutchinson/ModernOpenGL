@@ -228,7 +228,9 @@ int main(int argc, const char** argv)
         glm::mat4 transform2;
         // Transform orders are in reverse, we rotate around z first then translate.
         transform2 = glm::translate(transform2, glm::vec3(-0.5f, 0.5f, 0.0f));
-        //transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        double scale = sin(glfwGetTime());
+        scale = scale < 0.0f ? -scale : scale;
+        transform2 = glm::scale(transform2, glm::vec3(scale, scale, 0.0f));
         glUniformMatrix4fv(transformUniformLocation, 1, GL_FALSE, glm::value_ptr(transform2));
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
